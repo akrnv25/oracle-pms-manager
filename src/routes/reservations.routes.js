@@ -1,11 +1,8 @@
 const express = require('express');
+const reservationsController = require('../controllers/reservations.controller');
 
 const router = express.Router();
 
-// {{HostName}}/rsv/v1/hotels/{{HotelId}}/reservations
-router.get('/', (req, res) => {
-  res.status(200);
-  res.json({ success: true });
-});
+router.get('/', reservationsController.getAll.bind(reservationsController));
 
 module.exports = router;
