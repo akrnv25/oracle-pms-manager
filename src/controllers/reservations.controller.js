@@ -1,10 +1,10 @@
-const oracleService = require('../services/oracle.service');
+const oracleApiService = require('../services/oracle-api.service');
 const config = require('../config');
 
 class ReservationsController {
   getAll(req, res) {
     const path = `/rsv/v1/hotels/${config.hotelId}/reservations`;
-    oracleService
+    oracleApiService
       .get(path)
       .then(successRes => res.status(200).json(successRes))
       .catch(failedRes => res.status(400).json(failedRes));

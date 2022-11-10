@@ -1,25 +1,29 @@
 const axios = require('axios');
 const config = require('../config');
 const qs = require('qs');
+const storageService = require('./storage.service');
+const storageKeys = require('../consts/storage-keys');
 
-class OracleService {
+class OracleApiService {
   get(path, queryParams) {
     const method = 'get';
     const queryParamsStr = qs.stringify(queryParams, { addQueryPrefix: true });
     const url = `${config.hostName}${path}${queryParamsStr}`;
     const headers = this._prepareHeaders();
     return axios({ method, url, headers })
-      .then(({ data }) => ({ success: true, data }))
+      .then(r => ({ success: true, data: r.data }))
       .catch(e => this._handleError(e));
   }
 
   _prepareHeaders() {
+    const token = storageService.getItem(storageKeys.TOKEN);
+    const tokenType = storageService.getItem(storageKeys.TOKEN_TYPE);
     return {
       'Cache-Control': 'no-cache',
       'Content-Type': 'application/json',
       'x-hotelid': config.hotelId,
       'x-app-key': config.appKey,
-      'Authorization': `Bearer ${config.token}`
+      'Authorization': `${tokenType} ${token}`
     };
   }
 
@@ -32,4 +36,4 @@ class OracleService {
   }
 }
 
-module.exports = new OracleService();
+module.exports = new OracleApiService();
