@@ -10,23 +10,24 @@ const authMiddleware = (req, res, next) => {
   const tokenExpired = tokenExpirationTimestamp < Date.now();
   if (tokenExists && !tokenExpired) {
     next();
+  } else {
+    oracleAuthService
+      .getTokens()
+      .then(successRes => {
+        const newToken = successRes?.data?.['access_token'];
+        storageService.setItem(storageKeys.TOKEN, newToken);
+        const newTokenType = successRes?.data?.['token_type'];
+        storageService.setItem(storageKeys.TOKEN_TYPE, newTokenType);
+        const newTokenExpiresIn = successRes?.data?.['expires_in'];
+        // shift the life of the token by 5 minutes to form a reserve for maneuvers
+        const newTokenExpirationTimestamp = Date.now() + newTokenExpiresIn * 1000 - 300000;
+        storageService.setItem(storageKeys.TOKEN_EXPIRATION_TIMESTAMP, newTokenExpirationTimestamp);
+        next();
+      })
+      .catch(failedRes => {
+        res.status(400).json(failedRes);
+      });
   }
-  oracleAuthService
-    .getTokens()
-    .then(successRes => {
-      const newToken = successRes?.data?.['access_token'];
-      storageService.setItem(storageKeys.TOKEN, newToken);
-      const newTokenType = successRes?.data?.['token_type'];
-      storageService.setItem(storageKeys.TOKEN_TYPE, newTokenType);
-      const newTokenExpiresIn = successRes?.data?.['expires_in'];
-      // shift the life of the token by 5 minutes to form a reserve for maneuvers
-      const newTokenExpirationTimestamp = Date.now() + newTokenExpiresIn * 1000 - 300000;
-      storageService.setItem(storageKeys.TOKEN_EXPIRATION_TIMESTAMP, newTokenExpirationTimestamp);
-      next();
-    })
-    .catch(failedRes => {
-      res.status(400).json(failedRes);
-    });
 };
 
 module.exports = authMiddleware;
