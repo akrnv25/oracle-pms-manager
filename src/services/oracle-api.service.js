@@ -15,6 +15,15 @@ class OracleApiService {
       .catch(e => this._handleError(e));
   }
 
+  post(path, data) {
+    const method = 'post';
+    const url = `${config.hostName}${path}`;
+    const headers = this._prepareHeaders();
+    return axios({ method, url, headers, data })
+      .then(r => ({ success: true, data: r.data }))
+      .catch(e => this._handleError(e));
+  }
+
   _prepareHeaders() {
     const token = storageService.getItem(storageKeys.TOKEN);
     const tokenType = storageService.getItem(storageKeys.TOKEN_TYPE);
