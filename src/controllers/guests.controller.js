@@ -1,9 +1,35 @@
 const oracleApiService = require('../services/oracle-api.service');
+const config = require('../config');
 
 class GuestsController {
   create(req, res) {
     const url = '/crm/v1/guests';
-    const data = {};
+    const { givenName, surname } = req.body;
+    const data = {
+      guestDetails: {
+        customer: {
+          personName: [
+            {
+              givenName: givenName,
+              middleName: '',
+              surname: surname,
+              nameSuffix: '',
+              nameTitle: '',
+              envelopeGreeting: '',
+              salutation: '',
+              nameType: 'PRIMARY',
+              language: 'E'
+            }
+          ],
+          language: 'E',
+          nationality: 'US'
+        },
+        profileType: 'GUEST',
+        statusCode: 'ACTIVE',
+        registeredProperty: config.hotelId,
+        markForHistory: false
+      }
+    };
     oracleApiService
       .post(url, data)
       .then(successRes => res.status(200).json(successRes))
