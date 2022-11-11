@@ -7,7 +7,10 @@ const storageKeys = require('../consts/storage-keys');
 class OracleApiService {
   get(path, queryParams) {
     const method = 'get';
-    const queryParamsStr = qs.stringify(queryParams, { addQueryPrefix: true });
+    const queryParamsStr = qs.stringify(queryParams, {
+      addQueryPrefix: true,
+      arrayFormat: 'repeat'
+    });
     const url = `${config.hostName}${path}${queryParamsStr}`;
     const headers = this._prepareHeaders();
     return axios({ method, url, headers })
