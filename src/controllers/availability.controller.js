@@ -4,7 +4,7 @@ const oracleApiService = require('../services/oracle-api.service');
 class AvailabilityController {
   get(req, res) {
     const path = `/par/v0/hotels/${config.hotelId}/availability`;
-    const { roomStayStartDate, roomStayEndDate, roomStayQuantity, ratePlanCode } = req.body;
+    const { roomStayStartDate, roomStayEndDate, roomStayQuantity, ratePlanCode } = req.query;
     const queryParams = {
       roomStayStartDate: roomStayStartDate,
       roomStayEndDate: roomStayEndDate,
