@@ -73,6 +73,26 @@ class ReservationsController {
       .then(successRes => res.status(200).json(successRes))
       .catch(failedRes => res.status(400).json(failedRes));
   }
+
+  checkin(req, res) {
+    const reservationId = req.params.reservationId;
+    const path = `/fof/v1/hotels/${config.hotelId}/reservations/${reservationId}/checkIns`;
+    const { roomId } = req.body;
+    const data = {
+      reservation: {
+        roomId: roomId,
+        ignoreWarnings: true,
+        stopCheckin: false,
+        printRegistration: false
+      },
+      fetchReservationInstruction: ['ReservationDetail'],
+      includeNotifications: true
+    };
+    oracleApiService
+      .post(path, data)
+      .then(successRes => res.status(200).json(successRes))
+      .catch(failedRes => res.status(400).json(failedRes));
+  }
 }
 
 module.exports = new ReservationsController();
