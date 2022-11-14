@@ -10,9 +10,10 @@ class ReservationsController {
       .catch(failedRes => res.status(400).json(failedRes));
   }
 
+  // todo
   create(req, res) {
     const path = `/rsv/v1/hotels/${config.hotelId}/reservations`;
-    const data = {}; // todo: need read docs
+    const data = {};
     oracleApiService
       .post(path, data)
       .then(successRes => res.status(200).json(successRes))
