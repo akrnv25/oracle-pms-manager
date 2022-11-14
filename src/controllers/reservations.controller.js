@@ -4,8 +4,10 @@ const config = require('../config');
 class ReservationsController {
   getAll(req, res) {
     const path = `/rsv/v1/hotels/${config.hotelId}/reservations`;
+    const { givenName, surname } = req.query;
+    const queryParams = { givenName, surname };
     oracleApiService
-      .get(path)
+      .get(path, queryParams)
       .then(successRes => res.status(200).json(successRes))
       .catch(failedRes => res.status(400).json(failedRes));
   }

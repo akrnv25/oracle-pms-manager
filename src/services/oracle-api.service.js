@@ -7,11 +7,8 @@ const storageKeys = require('../consts/storage-keys');
 class OracleApiService {
   get(path, queryParams) {
     const method = 'get';
-    const queryParamsStr = qs.stringify(queryParams, {
-      addQueryPrefix: true,
-      arrayFormat: 'repeat'
-    });
-    const url = `${config.hostName}${path}${queryParamsStr}`;
+    const preparedQueryParams = this._prepareQueryParams(queryParams);
+    const url = `${config.hostName}${path}${preparedQueryParams}`;
     const headers = this._prepareHeaders();
     return axios({ method, url, headers })
       .then(r => ({ success: true, data: r.data }))
@@ -25,6 +22,22 @@ class OracleApiService {
     return axios({ method, url, headers, data })
       .then(r => ({ success: true, data: r.data }))
       .catch(e => this._handleError(e));
+  }
+
+  _prepareQueryParams(queryParams) {
+    const checkedQueryParams =
+      queryParams &&
+      Object.keys(queryParams).reduce((acc, key) => {
+        if (queryParams[key] !== '') {
+          acc[key] = queryParams[key];
+        }
+        return acc;
+      }, {});
+    return qs.stringify(checkedQueryParams, {
+      addQueryPrefix: true,
+      arrayFormat: 'repeat',
+      skipNulls: true
+    });
   }
 
   _prepareHeaders() {
