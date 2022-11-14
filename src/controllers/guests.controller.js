@@ -3,7 +3,7 @@ const config = require('../config');
 
 class GuestsController {
   create(req, res) {
-    const url = '/crm/v1/guests';
+    const path = '/crm/v1/guests';
     const { givenName, surname } = req.body;
     const data = {
       guestDetails: {
@@ -31,7 +31,7 @@ class GuestsController {
       }
     };
     oracleApiService
-      .post(url, data)
+      .post(path, data)
       .then(successRes => res.status(200).json(successRes))
       .catch(failedRes => res.status(400).json(failedRes));
   }
