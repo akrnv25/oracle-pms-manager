@@ -28,9 +28,10 @@ class OracleAuthService {
   _handleError(e) {
     const error = {
       code: e.response.status,
-      message: e.response.data?.error ? e.response.data.error : e.response.statusText
+      message: e.response.statusText
     };
-    return Promise.reject({ success: false, error });
+    const data = e.response.data;
+    return Promise.reject({ success: false, error, data });
   }
 }
 
