@@ -1,20 +1,15 @@
 const oracleApiService = require('../services/oracle-api.service');
 const config = require('../config');
 
-class ReservationsController {
-  getAll(req, res) {
+class ReservationsService {
+  getAll(givenName, surname) {
     const path = `/rsv/v1/hotels/${config.hotelId}/reservations`;
-    const { givenName, surname } = req.query;
     const queryParams = { givenName, surname };
-    oracleApiService
-      .get(path, queryParams)
-      .then(successRes => res.status(200).json(successRes))
-      .catch(failedRes => res.status(400).json(failedRes));
+    return oracleApiService.get(path, queryParams);
   }
 
-  create(req, res) {
+  create(roomType, profileId, ratePlanCode, arrivalDate, departureDate) {
     const path = `/rsv/v1/hotels/${config.hotelId}/reservations`;
-    const { roomType, profileId, ratePlanCode, arrivalDate, departureDate } = req.body;
     const data = {
       reservations: {
         reservation: {
@@ -68,16 +63,11 @@ class ReservationsController {
         }
       }
     };
-    oracleApiService
-      .post(path, data)
-      .then(successRes => res.status(200).json(successRes))
-      .catch(failedRes => res.status(400).json(failedRes));
+    return oracleApiService.post(path, data);
   }
 
-  checkIn(req, res) {
-    const reservationId = req.params.reservationId;
+  checkIn(reservationId, roomId) {
     const path = `/fof/v1/hotels/${config.hotelId}/reservations/${reservationId}/checkIns`;
-    const { roomId } = req.body;
     const data = {
       reservation: {
         roomId: roomId,
@@ -88,16 +78,11 @@ class ReservationsController {
       fetchReservationInstruction: ['ReservationDetail'],
       includeNotifications: true
     };
-    oracleApiService
-      .post(path, data)
-      .then(successRes => res.status(200).json(successRes))
-      .catch(failedRes => res.status(400).json(failedRes));
+    return oracleApiService.post(path, data);
   }
 
-  assignRoom(req, res) {
-    const reservationId = req.params.reservationId;
+  assignRoom(reservationId, roomId) {
     const path = `/fof/v0/hotels/${config.hotelId}/reservations/${reservationId}/roomAssignments`;
-    const { roomId } = req.body;
     const data = {
       criteria: {
         hotelId: config.hotelId,
@@ -112,11 +97,8 @@ class ReservationsController {
         roomNumberLocked: true
       }
     };
-    oracleApiService
-      .post(path, data)
-      .then(successRes => res.status(200).json(successRes))
-      .catch(failedRes => res.status(400).json(failedRes));
+    return oracleApiService.post(path, data);
   }
 }
 
-module.exports = new ReservationsController();
+module.exports = new ReservationsService();

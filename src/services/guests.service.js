@@ -1,10 +1,9 @@
 const oracleApiService = require('../services/oracle-api.service');
 const config = require('../config');
 
-class GuestsController {
-  create(req, res) {
+class GuestsService {
+  create(givenName, surname) {
     const path = '/crm/v1/guests';
-    const { givenName, surname } = req.body;
     const data = {
       guestDetails: {
         customer: {
@@ -30,11 +29,8 @@ class GuestsController {
         markForHistory: false
       }
     };
-    oracleApiService
-      .post(path, data)
-      .then(successRes => res.status(200).json(successRes))
-      .catch(failedRes => res.status(400).json(failedRes));
+    return oracleApiService.post(path, data);
   }
 }
 
-module.exports = new GuestsController();
+module.exports = new GuestsService();
