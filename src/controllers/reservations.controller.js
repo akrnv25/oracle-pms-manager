@@ -14,7 +14,7 @@ class ReservationsController {
 
   create(req, res) {
     const path = `/rsv/v1/hotels/${config.hotelId}/reservations`;
-    const { roomTypeCode, profileId, ratePlanCode, arrivalDate, departureDate } = req.body;
+    const { roomType, profileId, ratePlanCode, arrivalDate, departureDate } = req.body;
     const data = {
       reservations: {
         reservation: {
@@ -53,9 +53,9 @@ class ReservationsController {
               end: departureDate,
               marketCode: 'LEISURE',
               sourceCode: 'PHONE',
-              roomTypeCharged: roomTypeCode,
+              roomTypeCharged: roomType,
               ratePlanCode: ratePlanCode,
-              roomType: roomTypeCode,
+              roomType: roomType,
               pseudoRoom: false
             },
             guestCounts: {
@@ -74,7 +74,7 @@ class ReservationsController {
       .catch(failedRes => res.status(400).json(failedRes));
   }
 
-  checkin(req, res) {
+  checkIn(req, res) {
     const reservationId = req.params.reservationId;
     const path = `/fof/v1/hotels/${config.hotelId}/reservations/${reservationId}/checkIns`;
     const { roomId } = req.body;
@@ -87,6 +87,30 @@ class ReservationsController {
       },
       fetchReservationInstruction: ['ReservationDetail'],
       includeNotifications: true
+    };
+    oracleApiService
+      .post(path, data)
+      .then(successRes => res.status(200).json(successRes))
+      .catch(failedRes => res.status(400).json(failedRes));
+  }
+
+  assignRoom(req, res) {
+    const reservationId = req.params.reservationId;
+    const path = `/fof/v0/hotels/${config.hotelId}/reservations/${reservationId}/roomAssignments`;
+    const { roomId } = req.body;
+    const data = {
+      criteria: {
+        hotelId: config.hotelId,
+        reservationIdList: [
+          {
+            id: reservationId,
+            type: 'Reservation'
+          }
+        ],
+        roomId: roomId,
+        updateRoomTypeCharged: false,
+        roomNumberLocked: true
+      }
     };
     oracleApiService
       .post(path, data)

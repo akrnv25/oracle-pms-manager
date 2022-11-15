@@ -9,7 +9,12 @@ router.post('/', bodyParser.json(), reservationsController.create.bind(reservati
 router.post(
   '/:reservationId/checkIns',
   bodyParser.json(),
-  reservationsController.checkin.bind(reservationsController)
+  reservationsController.checkIn.bind(reservationsController)
+);
+router.post(
+  '/:reservationId/roomAssignments',
+  bodyParser.json(),
+  reservationsController.assignRoom.bind(reservationsController)
 );
 
 module.exports = router;
