@@ -24,5 +24,6 @@ router.post(
   actionsController.assignRoom.bind(actionsController)
 );
 router.get('/rooms', actionsController.getRooms.bind(actionsController));
+router.get('/business-events', actionsController.getBusinessEvents.bind(actionsController));
 
 module.exports = router;

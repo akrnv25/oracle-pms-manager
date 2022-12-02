@@ -3,6 +3,7 @@ const reservationsService = require('../services/reservations.service');
 const guestsService = require('../services/guests.service');
 const profilesService = require('../services/profiles.service');
 const availabilityService = require('../services/availability.service');
+const businessEventsService = require('../services/business-events.service');
 
 class ActionsController {
   getAvailability(req, res) {
@@ -65,6 +66,13 @@ class ActionsController {
     const { roomType, hotelRoomStatus, hotelRoomFrontOfficeStatus } = req.query;
     roomsService
       .getAll(roomType, hotelRoomStatus, hotelRoomFrontOfficeStatus)
+      .then(successRes => res.status(200).json(successRes))
+      .catch(failedRes => res.status(400).json(failedRes));
+  }
+
+  getBusinessEvents(req, res) {
+    businessEventsService
+      .getAll()
       .then(successRes => res.status(200).json(successRes))
       .catch(failedRes => res.status(400).json(failedRes));
   }
