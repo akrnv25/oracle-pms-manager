@@ -24,6 +24,15 @@ class OracleApiService {
       .catch(e => this._handleError(e));
   }
 
+  put(path, data) {
+    const method = 'put';
+    const url = `${config.hostName}${path}`;
+    const headers = this._prepareHeaders();
+    return axios({ method, url, headers, data })
+      .then(r => ({ success: true, data: r.data }))
+      .catch(e => this._handleError(e));
+  }
+
   _prepareQueryParams(queryParams) {
     const checkedQueryParams =
       queryParams &&

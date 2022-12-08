@@ -63,7 +63,28 @@ class ReservationsService {
         }
       }
     };
-    return oracleApiService.post(path, data);
+    return oracleApiService.post(path, departureDate);
+  }
+
+  update(reservationId, departureDate) {
+    const path = `/rsv/v1/hotels/${config.hotelId}/reservations/${reservationId}`;
+    const data = {
+      reservations: [
+        {
+          reservationIdList: [
+            {
+              type: 'Reservation',
+              id: reservationId
+            }
+          ],
+          roomStay: {
+            departureDate: departureDate
+          },
+          hotelId: config.hotelId
+        }
+      ]
+    };
+    return oracleApiService.put(path, data);
   }
 
   checkIn(reservationId, roomId) {
@@ -95,6 +116,98 @@ class ReservationsService {
         roomId: roomId,
         updateRoomTypeCharged: false,
         roomNumberLocked: true
+      }
+    };
+    return oracleApiService.post(path, data);
+  }
+
+  getFolio(reservationId) {
+    const path = `/csh/v0/hotels/${config.hotelId}/reservations/${reservationId}/folios`;
+    const queryParams = {
+      folioWindowNo: 1,
+      fetchInstructions: ['Postings', 'Transactioncodes'],
+      limit: 50
+    };
+    return oracleApiService.get(path, queryParams);
+  }
+
+  closeFolio(reservationId, profileId) {
+    const path = `/csh/v0/hotels/${config.hotelId}/reservations/${reservationId}/folios`;
+    const data = {
+      criteria: {
+        reservationId: {
+          idContext: 'OPERA',
+          id: reservationId,
+          type: 'Reservation'
+        },
+        profileId: {
+          idContext: 'OPERA',
+          id: profileId,
+          type: 'Profile'
+        },
+        fiscalFolioInstruction: 'New',
+        allFolioWindow: false,
+        folioQueue: {
+          generateFiscalFolio: false
+        },
+        cashierId: 1000,
+        hotelId: config.hotelId,
+        eventType: 'CheckOut',
+        folioWindowNo: 1,
+        correction: false,
+        debitFolio: false
+      }
+    };
+    return oracleApiService.post(path, data);
+  }
+
+  checkOut(reservationId) {
+    const path = `/csh/v0/hotels/${config.hotelId}/reservations/${reservationId}/checkOuts`;
+    const data = {
+      reservation: {
+        reservationIdList: {
+          id: reservationId,
+          type: 'Reservation'
+        },
+        stopCheckout: false,
+        cashierId: 3,
+        hotelId: config.hotelId,
+        eventType: 'CheckOut',
+        autoCheckout: false,
+        checkoutInstr: {
+          roomStatus: 'Dirty',
+          ignoreWarnings: true
+        }
+      },
+      verificationOnly: false
+    };
+    return oracleApiService.post(path, data);
+  }
+
+  createPayment(reservationId, folioWindowNo, amount, currencyCode) {
+    const path = `/csh/v0/hotels/${config.hotelId}/reservations/${reservationId}/payments`;
+    const data = {
+      criteria: {
+        overrideInsufficientCC: false,
+        applyCCSurcharge: false,
+        vATOffset: false,
+        reservationId: {
+          idContext: 'OPERA',
+          id: reservationId,
+          type: 'Reservation'
+        },
+        paymentMethod: {
+          paymentMethod: 'CA'
+        },
+        postingReference: 'CA Posting - Window 1',
+        postingAmount: {
+          amount: amount,
+          currencyCode: currencyCode
+        },
+        cashierId: 1000,
+        hotelId: config.hotelId,
+        folioWindowNo: folioWindowNo,
+        overrideARCreditLimit: false
       }
     };
     return oracleApiService.post(path, data);

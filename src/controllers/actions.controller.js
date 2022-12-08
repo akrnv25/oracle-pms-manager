@@ -76,6 +76,14 @@ class ActionsController {
       .then(successRes => res.status(200).json(successRes))
       .catch(failedRes => res.status(400).json(failedRes));
   }
+
+  getFolio(req, res) {
+    const reservationId = req.params.reservationId;
+    reservationsService
+      .getFolio(reservationId)
+      .then(successRes => res.status(200).json(successRes))
+      .catch(failedRes => res.status(400).json(failedRes));
+  }
 }
 
 module.exports = new ActionsController();

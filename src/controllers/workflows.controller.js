@@ -84,6 +84,47 @@ class WorkflowsController {
         res.json(failedRes);
       });
   }
+
+  checkOut(req, res) {
+    const { reservationId, profileId, departureDate } = req.body;
+    reservationsService
+      .update(reservationId, departureDate)
+      .then(() => {
+        return reservationsService.getFolio(reservationId);
+      })
+      .then(folioRes => {
+        const folioWindows = folioRes?.data?.reservationFolioInformation?.folioWindows ?? [];
+        const folioWindowsToPayment = folioWindows.filter(
+          folioWindow => folioWindow.balance.amount > 0
+        );
+        const createPayments$ = folioWindowsToPayment.map(folioWindow => {
+          const folioWindowNo = folioWindow.folioWindowNo;
+          const amount = folioWindow.balance.amount;
+          const currencyCode = folioWindow.balance.currencyCode;
+          return reservationsService.createPayment(
+            reservationId,
+            folioWindowNo,
+            amount,
+            currencyCode
+          );
+        });
+        return Promise.all(createPayments$);
+      })
+      .then(() => {
+        return reservationsService.closeFolio(reservationId, profileId);
+      })
+      .then(() => {
+        return reservationsService.checkOut(reservationId);
+      })
+      .then(() => {
+        res.status(200);
+        res.json({ success: true });
+      })
+      .catch(failedRes => {
+        res.status(400);
+        res.json(failedRes);
+      });
+  }
 }
 
 module.exports = new WorkflowsController();
