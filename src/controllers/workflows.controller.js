@@ -12,6 +12,7 @@ class WorkflowsController {
     let roomType;
     let reservationId;
     let roomId;
+    // 1. Request available rooms for given dates
     availabilityService
       .get(arrivalDate, departureDate, roomStayQuantity, ratePlanCode)
       .then(availabilityRes => {
@@ -26,9 +27,11 @@ class WorkflowsController {
         if (roomTypes?.length === 0) {
           throw new Error('Not available rooms');
         }
+        // 2. We will place the guest in the first of the available room types
         roomType = roomTypes[0];
       })
       .then(() => {
+        // 3. Create a reservation for a room of the selected type for a guest
         return reservationsService
           .create(roomType, profileId, ratePlanCode, arrivalDate, departureDate)
           .then(reservationRes => {
@@ -45,6 +48,7 @@ class WorkflowsController {
           });
       })
       .then(() => {
+        // 4. We request available rooms of the selected type for the selected dates
         return roomsService
           .getAllByParams(
             roomType,
@@ -54,6 +58,7 @@ class WorkflowsController {
             departureDate
           )
           .then(roomsRes => {
+            // 5. We will place the guest in the first of the received available rooms
             roomId =
               roomsRes?.data?.hotelRoomsDetails?.room &&
               roomsRes?.data?.hotelRoomsDetails?.room[0] &&
@@ -63,8 +68,14 @@ class WorkflowsController {
             }
           });
       })
-      .then(() => reservationsService.assignRoom(reservationId, roomId))
-      .then(() => reservationsService.checkIn(reservationId, roomId))
+      .then(() => {
+        // 6. We assign the selected room to the reservation
+        return reservationsService.assignRoom(reservationId, roomId);
+      })
+      .then(() => {
+        // 7. We perform guest check-in. Check-in is possible only on the same day with a reservation
+        return reservationsService.checkIn(reservationId, roomId);
+      })
       .then(() => {
         const data = {
           profileId,
@@ -87,16 +98,20 @@ class WorkflowsController {
 
   checkOut(req, res) {
     const { reservationId, profileId, departureDate } = req.body;
+    // 1. Checkout is available only on the day specified in the reservation. Update the departure date in the reservation
     reservationsService
       .update(reservationId, departureDate)
       .then(() => {
+        // 2. Request all user folios (guest invoices)
         return reservationsService.getFolio(reservationId);
       })
       .then(folioRes => {
         const folioWindows = folioRes?.data?.reservationFolioInformation?.folioWindows ?? [];
+        // 3. Filtering invoices that the user must pay
         const folioWindowsToPayment = folioWindows.filter(
           folioWindow => folioWindow.balance.amount > 0
         );
+        // 4. Create invoice payment requests for each unpaid folio
         const createPayments$ = folioWindowsToPayment.map(folioWindow => {
           const folioWindowNo = folioWindow.folioWindowNo;
           const amount = folioWindow.balance.amount;
@@ -111,9 +126,11 @@ class WorkflowsController {
         return Promise.all(createPayments$);
       })
       .then(() => {
+        // 5. After paying for all folios, close them
         return reservationsService.closeFolio(reservationId, profileId);
       })
       .then(() => {
+        // 6. Guest checkout
         return reservationsService.checkOut(reservationId);
       })
       .then(() => {

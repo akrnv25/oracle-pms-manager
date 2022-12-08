@@ -63,7 +63,7 @@ class ReservationsService {
         }
       }
     };
-    return oracleApiService.post(path, departureDate);
+    return oracleApiService.post(path, data);
   }
 
   update(reservationId, departureDate) {
