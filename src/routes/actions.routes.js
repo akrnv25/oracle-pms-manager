@@ -26,5 +26,7 @@ router.post(
 router.get('/rooms', actionsController.getRooms.bind(actionsController));
 router.get('/business-events', actionsController.getBusinessEvents.bind(actionsController));
 router.get('/folios/:reservationId', actionsController.getFolio.bind(actionsController));
+router.get('/transaction-codes', actionsController.getTransactionCodes.bind(actionsController));
+router.post('/charges', bodyParser.json(), actionsController.createCharge.bind(actionsController));
 
 module.exports = router;

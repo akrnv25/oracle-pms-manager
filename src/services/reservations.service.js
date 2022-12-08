@@ -1,5 +1,6 @@
 const oracleApiService = require('../services/oracle-api.service');
 const config = require('../config');
+const getCurrentDate = require('../utilities/get-current-date');
 
 class ReservationsService {
   getAll(givenName, surname) {
@@ -208,6 +209,43 @@ class ReservationsService {
         hotelId: config.hotelId,
         folioWindowNo: folioWindowNo,
         overrideARCreditLimit: false
+      }
+    };
+    return oracleApiService.post(path, data);
+  }
+
+  createCharge(reservationId, transactionCode, amount, currencyCode, quantity, product, cashierId) {
+    const path = `/csh/v0/hotels/${config.hotelId}/reservations/${reservationId}/charges`;
+    const data = {
+      criteria: {
+        hotelId: config.hotelId,
+        charges: [
+          {
+            transactionCode: transactionCode,
+            articleCode: '',
+            price: {
+              amount: amount,
+              currencyCode: currencyCode
+            },
+            postingQuantity: quantity,
+            postingReference: product,
+            postingRemark: product,
+            arrangementCode: 'string',
+            applyRoutingInstructions: false,
+            usePackageAllowance: false,
+            autoPosting: true,
+            financialTransactionIdList: [
+              {
+                id: 'Vendor transaction ID 333',
+                type: 'string'
+              }
+            ]
+          }
+        ],
+        incomeAuditDate: getCurrentDate(),
+        postIt: false,
+        cashierId: cashierId,
+        welcomeOfferPosting: true
       }
     };
     return oracleApiService.post(path, data);

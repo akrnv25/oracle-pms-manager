@@ -4,6 +4,7 @@ const guestsService = require('../services/guests.service');
 const profilesService = require('../services/profiles.service');
 const availabilityService = require('../services/availability.service');
 const businessEventsService = require('../services/business-events.service');
+const transactionCodesService = require('../services/transaction-codes.service');
 
 class ActionsController {
   getAvailability(req, res) {
@@ -81,6 +82,30 @@ class ActionsController {
     const reservationId = req.params.reservationId;
     reservationsService
       .getFolio(reservationId)
+      .then(successRes => res.status(200).json(successRes))
+      .catch(failedRes => res.status(400).json(failedRes));
+  }
+
+  getTransactionCodes(req, res) {
+    transactionCodesService
+      .getAll()
+      .then(successRes => res.status(200).json(successRes))
+      .catch(failedRes => res.status(400).json(failedRes));
+  }
+
+  createCharge(req, res) {
+    const { reservationId, transactionCode, amount, currencyCode, quantity, product, cashierId } =
+      req.body;
+    reservationsService
+      .createCharge(
+        reservationId,
+        transactionCode,
+        amount,
+        currencyCode,
+        quantity,
+        product,
+        cashierId
+      )
       .then(successRes => res.status(200).json(successRes))
       .catch(failedRes => res.status(400).json(failedRes));
   }
