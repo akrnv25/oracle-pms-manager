@@ -65,7 +65,7 @@ class ActionsController {
   getRooms(req, res) {
     const { roomType, hotelRoomStatus, hotelRoomFrontOfficeStatus } = req.query;
     roomsService
-      .getAll(roomType, hotelRoomStatus, hotelRoomFrontOfficeStatus)
+      .getAllByParams(roomType, hotelRoomStatus, hotelRoomFrontOfficeStatus)
       .then(successRes => res.status(200).json(successRes))
       .catch(failedRes => res.status(400).json(failedRes));
   }
