@@ -142,6 +142,34 @@ class WorkflowsController {
         res.json(failedRes);
       });
   }
+
+  charge(req, res) {
+    const { reservationId, transactionCode, amount, currencyCode, quantity, product, cashierId } =
+      req.body;
+    // 1. Create charge
+    reservationsService
+      .createCharge(
+        reservationId,
+        transactionCode,
+        amount,
+        currencyCode,
+        quantity,
+        product,
+        cashierId
+      )
+      .then(() => {
+        // 2. Return guest folio
+        return reservationsService.getFolio(reservationId);
+      })
+      .then(folioRes => {
+        res.status(200);
+        res.json(folioRes);
+      })
+      .catch(failedRes => {
+        res.status(400);
+        res.json(failedRes);
+      });
+  }
 }
 
 module.exports = new WorkflowsController();

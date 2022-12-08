@@ -10,5 +10,6 @@ router.post(
   bodyParser.json(),
   workflowsController.checkOut.bind(workflowsController)
 );
+router.post('/charge', bodyParser.json(), workflowsController.charge.bind(workflowsController));
 
 module.exports = router;
